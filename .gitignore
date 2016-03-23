@@ -19,6 +19,7 @@ $RECYCLE.BIN/
 
 out/
 imag*.*
+.idea/
 
 # =========================
 # Operating System Files
