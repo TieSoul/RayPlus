@@ -64,8 +64,7 @@ public class Main {
     public static Scene constructScene(int frame) {
         ArrayList<Object3D> objects = new ArrayList<Object3D>();
         Object3D cylinder = new Sphere(new Point3d(0, 1, 0), 1);
-        cylinder.material.transparencyCoefficient = 1.0;
-        cylinder.material.refractionIndex = 1.0;
+        cylinder.material.reflectionCoefficient = 1.0;
         cylinder.material.diffuseCoefficient = cylinder.material.ambientCoefficient = 0;
         cylinder.material.specularCoefficient = 1.0;
         objects.add(cylinder);

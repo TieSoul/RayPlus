@@ -1,9 +1,6 @@
 package raytracer.scene.objects;
 
-import raytracer.math.Matrix;
-import raytracer.math.Point2d;
-import raytracer.math.Point3d;
-import raytracer.math.Ray;
+import raytracer.math.*;
 import raytracer.scene.IntersectionInfo;
 import raytracer.scene.Object3D;
 
@@ -64,6 +61,26 @@ public class TransformedObject extends Object3D {
 
     @Override
     public BBox getBBox() {
-        return null;
+        BBox origBBox = originalObject.getBBox();
+        double minX, maxX, minY, maxY, minZ, maxZ;
+        minX = minY = minZ = Double.POSITIVE_INFINITY;
+        maxX = maxY = maxZ = Double.NEGATIVE_INFINITY;
+        for (int i = 0; i < 7; i++) {
+            int x = i&1;
+            int y = (i>>1)&1;
+            int z = (i>>2)&1; // SKERPLES HELPED WITH THIS.
+            Point3d point = origBBox.vmin;
+            point = point.translate(new Vector3d(x*(origBBox.vmax.x - origBBox.vmin.x),
+                                                 y*(origBBox.vmax.y - origBBox.vmin.y),
+                                                 z*(origBBox.vmax.z - origBBox.vmin.z)));
+            point = point.transform(transform);
+            if (point.x < minX) minX = point.x;
+            if (point.x > maxX) maxX = point.x;
+            if (point.y < minY) minY = point.y;
+            if (point.y > maxY) maxY = point.y;
+            if (point.z < minZ) minZ = point.z;
+            if (point.z > maxZ) maxZ = point.z;
+        }
+        return new BBox(new Point3d(minX, minY, minZ), new Point3d(maxX, maxY, maxZ));
     }
 }
