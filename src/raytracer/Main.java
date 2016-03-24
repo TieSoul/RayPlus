@@ -33,35 +33,22 @@ public class Main {
 
     public static void main(String[] args) {
         JFrame frame = new JFrame();
-        GifSequenceWriter writer;
+        Scene scene = constructScene();
+        BufferedImage image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
+        frame.getContentPane().add(new JLabel(new ImageIcon(image)));
+        frame.setSize(image.getHeight() + frame.getSize().height, image.getWidth() + frame.getSize().width);
+        frame.pack();
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+        scene.render(image, frame);
+        File outFile = new File("image.png");
         try {
-            writer = new GifSequenceWriter(new FileImageOutputStream(new File("image.gif")), BufferedImage.TYPE_INT_RGB, 1000/15, true);
-        } catch (IOException e) {
-            return;
-        }
-        for (int f = 0; f < 30; f++) {
-            Scene scene = constructScene(f);
-            BufferedImage image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
-            frame.getContentPane().removeAll();
-            frame.getContentPane().add(new JLabel(new ImageIcon(image)));
-            frame.setSize(image.getHeight() + frame.getSize().height, image.getWidth() + frame.getSize().width);
-            frame.pack();
-            frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-            frame.setVisible(true);
-            scene.render(image, frame);
-            try {
-                writer.writeToSequence(image);
-            } catch (IOException e) {
-                // do nothing
-            }
-        }
-        try {
-            writer.close();
-        } catch (IOException e) {
-            // do nothing
+            ImageIO.write(image, "png", outFile);
+        } catch (Exception e) {
+            System.err.println(e.getMessage()); // print any IO errors to stderr.
         }
     }
-    public static Scene constructScene(int frame) {
+    public static Scene constructScene() {
         ArrayList<Object3D> objects = new ArrayList<Object3D>();
         Object3D cylinder = new Sphere(new Point3d(0, 1, 0), 1);
         cylinder.material.reflectionCoefficient = 1.0;
@@ -73,7 +60,7 @@ public class Main {
         Tracer tracer = new RayTracer();
         ArrayList<Light> lights = new ArrayList<Light>();
         lights.add(new AmbientLight());
-        Point3d lightPoint = new Point3d(-3, 2, 0).transform(Matrix.from_rotation(new Vector3d(0, 1, 0), Math.PI*frame/15.0));
+        Point3d lightPoint = new Point3d(-3, 2, 0);
         lights.add(new PointLight(lightPoint, 10));
         Scene scene = new Scene(objects, lights, camera, tracer);
         scene.sampler = new RegularSampler(16);
