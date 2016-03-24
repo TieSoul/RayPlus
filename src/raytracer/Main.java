@@ -1,6 +1,5 @@
 package raytracer;
 
-import raytracer.math.Matrix;
 import raytracer.math.Point3d;
 import raytracer.math.Vector3d;
 import raytracer.samplers.RegularSampler;
@@ -15,11 +14,10 @@ import raytracer.scene.objects.Plane;
 import raytracer.scene.objects.Sphere;
 import raytracer.tracers.RayTracer;
 
-import javax.imageio.stream.FileImageOutputStream;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
