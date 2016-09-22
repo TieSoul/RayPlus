@@ -26,6 +26,8 @@ public class Texture {
     }
 
     public Color getColor(Point2d point) {
+        if (point.x == 1.0) point.x -= 0.001;
+        if (point.y == 1.0) point.y -= 0.001;
         return new Color(image.getRGB((int)(point.x * image.getWidth()), (int)(point.y * image.getHeight())));
     }
 }

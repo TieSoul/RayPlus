@@ -23,7 +23,7 @@ public class Material { // a Phong material; includes Phong shading code.
     public double transparencyCoefficient = 0;
 
     private static final double DELTA = 0.0001d;
-    private static final int MAXDEPTH = 10;
+    private static final int MAXDEPTH = 20;
 
     public Color getColor(IntersectionInfo intersect) {
         return texture.getColor(intersect.object.getTexturePoint(intersect.point));
@@ -92,17 +92,26 @@ public class Material { // a Phong material; includes Phong shading code.
                 }
             }
         }
-
+        boolean tir = false;
         if (transparencyCoefficient > 0 && depth < MAXDEPTH) {
             double eta = refractionIndex;
-            if (!intersect.incoming) eta = 1.0/eta;
+            if (intersect.incoming) eta = 1.0/eta;
             double cos = intersect.normal.dotProduct(intersect.ray.direction.scale(-1));
             double in_sqrt = 1.0 - eta*eta*(1.0 - cos*cos);
+            if (in_sqrt < 0) {
+                reflectionCoefficient += transparencyCoefficient;
+                tir = true;
+            }
             Vector3d transmission = intersect.normal.scale(
                     eta*cos - Math.sqrt(in_sqrt)
             ).subtract(intersect.ray.direction.scale(-eta));
             Ray transmissionRay = new Ray(intersect.point.translate(transmission.scale(DELTA)), transmission);
-
+            IntersectionInfo transIntersect = transmissionRay.trace(scene);
+            if (transIntersect.hit) {
+                result = result.add(transIntersect.object.material.shade(scene, transIntersect, depth + 1).mult(color).mult(transparencyCoefficient));
+            } else {
+                result = result.add(scene.camera.backgroundColor.mult(color).mult(transparencyCoefficient));
+            }
         }
 
         if (reflectionCoefficient > 0 && depth < MAXDEPTH) {
@@ -114,6 +123,9 @@ public class Material { // a Phong material; includes Phong shading code.
                 result = result.add(newIntersect.object.material.shade(scene, newIntersect, depth + 1).mult(color).mult(reflectionCoefficient));
             } else {
                 result = result.add(scene.camera.backgroundColor.mult(color).mult(reflectionCoefficient));
+            }
+            if (tir) {
+                reflectionCoefficient -= transparencyCoefficient;
             }
         }
 
